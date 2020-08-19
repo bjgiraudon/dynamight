@@ -8,3 +8,5 @@ Python program that plots graphs for evolutionary games, working so far :
 Execute main.py.
 Choose the desired simulation from console user input.
 LaTeX supported.
+
+![Example](/images/2p2s_hd.png)
