@@ -11,3 +11,4 @@ LaTeX supported.
 
 ![Example](/images/2p2s_hd.png)
 ![Example](/images/2p4s_skyrms.png)
+![Example](/images/2p3s_zeeman.png)
