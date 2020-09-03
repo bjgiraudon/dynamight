@@ -3,6 +3,8 @@
 Created on Wed Jun 17 16:19:22 2020
 
 @author: Benjamin Giraudon
+
+Status : - computations for speed grids need to be fixed (seem skewed)
 """
 
 import numpy as np

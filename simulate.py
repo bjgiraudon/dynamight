@@ -3,6 +3,12 @@
 Created on Wed Jun 17 16:25:04 2020
 
 @author: Benjamin Giraudon
+
+STATUS : - To add : - for the executable simulation : user input payoff matrices
+                                                      better toggle and idle of plotting options
+                                                      user interface (buttons, slides)
+                    - add functions to simulate and save simulation results (when no graph is wanted)
+                    
 """
 
 import time
@@ -20,41 +26,38 @@ import parameters as param
 def exec_sim():
     print("TEST :", param.dict_test)
     test = param.dict_test[int(input("-> Please enter the desired test ID :"))]
-    print("---------------------------------------------------")
+    print("----------------------------------------------------")
     if test == "arrow":
         fig = plt.figure()
         ax = fig.gca(projection = '3d', xlabel='x axis', ylabel = 'y axis', zlabel = 'z axis')
-        start_time = time.time()
         print("Testing : {}".format(test))
-#        Ot = [-4, 3, 0]
-#        At = [5.4, 3, 0]
-#        Ot2 = [-4, 3, 0]
-#        At2 = [5.4, 4.1, 0]
-#        Ot3 = [6.5, 2, 0]
-#        At3 = [6.5, 3.7, 0]
-#        
-#        res1 = drawer.arrow_cone(Ot, At, fig, ax, 1, 0.33, 'purple', zOrder=3)
-#        res2 = drawer.arrow_cone(Ot2, At2, fig, ax, 1, 0.33, 'orange', zOrder=3)
-#        res3 = drawer.arrow_cone(Ot3, At3, fig, ax, 1, 0.33, 'black', zOrder=3)
+        Ot = [-4, 3, 0]
+        At = [5.4, 3, 0]
+        Ot2 = [-4, 3, 0]
+        At2 = [5.4, 4.1, 0]
+        Ot3 = [6.5, 2, 0]
+        At3 = [6.5, 3.7, 0]
+        
+        res1 = drawer.arrow_dyn3(Ot, At, fig, ax, 1, 0.33, 'purple', zOrder=3)
+        res2 = drawer.arrow_dyn3(Ot2, At2, fig, ax, 1, 0.33, 'orange', zOrder=3)
+        res3 = drawer.arrow_dyn3(Ot3, At3, fig, ax, 1, 0.33, 'black', zOrder=3)
         N=10
-#        res = [res1, res2, res3]
-        res = []
+        res = [res1, res2, res3]
         for i in range(N):
             color = (random.random(), random.random(), random.random())
-            rd_start = [random.randint(-5,5),random.randint(-5,5), random.randint(-5,5)]
-            rd_end = [random.randint(-5,5),random.randint(-5,5), random.randint(-5,5)]
-            res.append(drawer.arrow_cone(rd_start, rd_end, fig, ax, 1, 0.33, color, zOrder=3))
+            res.append(drawer.arrow_dyn3([random.randint(-5,5),random.randint(-5,5), 0],[random.randint(-5,5),random.randint(-5,5), 0], fig, ax, 1,0.33,color,zOrder=3))
     elif test == "2P3S":
         print("2P3S :", param.dict_2P3S)
         example = abs(int(input("-> Please enter the desired example ID :")))
-        print("----------------------------------------------------")
+        print("-----------------------------------------------------")
         pMrps = param.PAYMTX_2P3S[example - 1]
         print("PAYOFF MATRIX : {} -- {}".format(test, param.dict_2P3S[example]))
         print(pMrps)
-        print("----------------------------------------------------")
+        print("-----------------------------------------------------")
         print("EQUILIBRIA CHARACTERISTICS :")
         fig, ax = plt.subplots()
         plt.axis('off')
+        ax.set_aspect(1)
         start_time = time.time()
         if example == 1:
             drawer.setSimplex(['$R$','$P$','$S$'], pMrps, ax, 13, 53)
@@ -109,27 +112,38 @@ def exec_sim():
             drawer.trajectory([0.7, 0.23], pMrps, param.step, [0.001], 50, fig, ax, 'black', param.arrowSize, param.arrowWidth, 53)
             drawer.speed_plot([0, 1], [0, np.sqrt(3/4)], 50, pMrps, ax, cm.coolwarm, levels = 50, zorder=50)
             eqs = drawer.equilibria(pMrps, ax, 'black', 'gray', 'white', 80, 54)
-            
+        elif example == 6:
+            drawer.setSimplex(['A','B','C'], pMrps, ax, 13, 53)
+            drawer.trajectory([0.2, 0.4], pMrps, param.step, [0.001], 50, fig, ax, 'black', param.arrowSize, param.arrowWidth, 53)
+            drawer.trajectory([0.4, 0.2], pMrps, param.step, [0.001], 50, fig, ax, 'black', param.arrowSize, param.arrowWidth, 53)
+            drawer.trajectory([0.4, 0.4], pMrps, param.step, [0.001], 50, fig, ax, 'black', param.arrowSize, param.arrowWidth, 53)
+            drawer.trajectory([0.75, 0.25], pMrps, param.step, [0.001], 50, fig, ax, 'black', param.arrowSize, param.arrowWidth, 53)
+            drawer.trajectory([0.25, 0.75], pMrps, param.step, [0.001], 50, fig, ax, 'black', param.arrowSize, param.arrowWidth, 53)
+            drawer.trajectory([0.5, 0], pMrps, param.step, [0.001], 50, fig, ax, 'black', param.arrowSize, param.arrowWidth, 53)
+            drawer.trajectory([0, 0.5], pMrps, param.step, [0.001], 50, fig, ax, 'black', param.arrowSize, param.arrowWidth, 53)
+            drawer.speed_plot([0, 1], [0, np.sqrt(3/4)], 50, pMrps, ax, cm.coolwarm, levels = 50, zorder=50)
+            eqs = drawer.equilibria(pMrps, ax, 'black', 'gray', 'white', 80, 54)
             
         else:
             print(" /!\ No trajectory has been set for this example /!\ ")
-            drawer.setSimplex(['1','2','3'], pMrps, ax, 13, 53)
-            drawer.speed_plot([0, 1], [0, np.sqrt(3/4)], 50, pMrps, ax, cm.coolwarm, levels = 50, zorder=50)
+            drawer.setSimplex(['A','B','C'], pMrps, ax, 13, 53)
+#            drawer.speed_plot([0, 1], [0, np.sqrt(3/4)], 50, pMrps, ax, cm.coolwarm, levels = 50, zorder=50)
             eqs = drawer.equilibria(pMrps, ax, 'black', 'gray', 'white', 80, 54)
     
         
     elif test == "2P2S":
         print("2P2S :", param.dict_2P2S)
         example = abs(int(input("-> Please enter the desired example ID :")))
-        print("----------------------------------------------------")
+        print("-----------------------------------------------------")
         pMrps = param.PAYMTX_2P2S[example - 1]
         print("PAYOFF MATRIX : {} -- {}".format(test, param.dict_2P2S[example]))
         print(pMrps[0], "PLAYER 1")
         print(pMrps[1], "PLAYER 2")
-        print("----------------------------------------------------")
+        print("-----------------------------------------------------")
         print("EQUILIBRIA CHARACTERISTICS :")
         fig, ax = plt.subplots()
         ax.set_title('Phase diagram : {} -- {}'.format(test,param.dict_2P2S[example]), fontsize=14)
+        ax.set_aspect(1)
         plt.axis('on')
         start_time = time.time()
         if example == 1:
@@ -148,14 +162,15 @@ def exec_sim():
     elif test == "2P4S":
         print("2P4S :", param.dict_2P4S)
         example = abs(int(input("-> Please enter the desired example ID :")))
-        print("----------------------------------------------------")
+        print("-----------------------------------------------------")
         pMrps = param.PAYMTX_2P4S[example - 1]
         print("PAYOFF MATRIX : {} -- {}".format(test, param.dict_2P4S[example]))
         print(pMrps)
-        print("----------------------------------------------------")
+        print("-----------------------------------------------------")
         print("EQUILIBRIA CHARACTERISTICS :")
         fig = plt.figure()
         ax = fig.gca(projection = '3d', xlabel='x axis', ylabel = 'y axis', zlabel = 'z axis')
+        ax.set_aspect(1)
         ax.set_axis_off()
         start_time = time.time()
         if example == 1:
@@ -175,7 +190,7 @@ def exec_sim():
         print("{} SADDLES".format(len(eqs[1])))
         print("{} SINKS".format(len(eqs[2])))
         print("{} CENTRES".format(len(eqs[3])))
-        print("{} UNDETERMINED".format(len(eqs[4])))
+        print("{} NON-HYPERBOLIC".format(len(eqs[4])))
     print("-----------------------------------------------------")
     print("Execution time : %s seconds" % round((time.time() - start_time), 3))
     return None

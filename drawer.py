@@ -3,6 +3,10 @@
 Created on Wed Jun 17 16:22:02 2020
 
 @author: Benjamin Giraudon
+Status : - need to check for presence of LaTeX installation on the device
+         - better management of equilibria in 3D games (2P4S)
+         To add : - feature that plots higher dimension manifolds
+                  - automatically draw relevant trajectories
 """
 
 import math
@@ -12,7 +16,7 @@ from sympy import Matrix
 from sympy.abc import x, y, z
 
 import matplotlib
-matplotlib.rcParams['text.usetex'] = True
+matplotlib.rcParams['text.usetex'] = False
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 from matplotlib.collections import PatchCollection
@@ -87,19 +91,6 @@ def arrow_dyn3(xStart, xEnd, fig, ax, arrow_size, arrow_width, arrow_color, zOrd
     quiv = ax.quiver(xStart[0], xStart[1], xStart[2], u, v, w, length=0.002, arrow_length_ratio=15, pivot='tip', color = arrow_color, zorder=zOrder, normalize = True)
     return [quiv]
 
-def arrow_cone(xStart, xEnd, fig, ax, arrow_size, cone_radius, arrow_color, zOrder):
-    u = xEnd[0] - xStart[0]
-    v = xEnd[1] - xStart[1]
-    w = xEnd[2] - xStart[2]
-    vect = [u, v, w]
-    norm = np.linalg.norm(vect)
-    u_hat, v_hat, w_hat = u/norm, v/norm, w/norm
-    baseLine = plt.plot([xStart[0], xEnd[0]], [xStart[1], xEnd[1]], [xStart[2], xEnd[2]], color = arrow_color, zorder=zOrder)
-    endDot = ax.scatter(xEnd[0], xEnd[1], xEnd[2], color = 'orange')
-    Fpoint = [xEnd[0] + u_hat, xEnd[1] + v_hat, xEnd[2] + w_hat]
-    arrLine = plt.plot([xEnd[0], Fpoint[0]], [xEnd[1], Fpoint[1]], [xEnd[2], Fpoint[2]], color = arrow_color, zorder=zOrder)
-    return None
-
 def setSimplex(strat, payMtx, ax, fontSize, zOrder):
     """Draws the simplex frame."""
     if payMtx[0].shape == (3,):
@@ -145,7 +136,7 @@ def setSimplex(strat, payMtx, ax, fontSize, zOrder):
 def trajectory(X0, payMtx, step, parr, Tmax, fig, ax, col, arrSize, arrWidth, zd):
     """Draws trajectories in the simplex, given a starting point"""
     t = np.linspace(0, Tmax, int(Tmax/step))
-    nb_increments = int(Tmax/step)
+    #nb_increments = int(Tmax/step)
     if payMtx[0].shape == (3,): #S_2P3S
         x0, y0 = X0
         sol = odeint(dynamics.repDyn3, [x0, y0], t, (payMtx,))
@@ -217,7 +208,6 @@ def trajectory(X0, payMtx, step, parr, Tmax, fig, ax, col, arrSize, arrWidth, zd
         for i in range(1, len(parr)-1):
             dirs = dirs + arrow_dyn3([solX[math.floor(parr[i]*len(solX))], solY[math.floor(parr[i]*len(solX))], solZ[math.floor(parr[i]*len(solX))]],[solX[math.floor(parr[i]*len(solX))+1], solY[math.floor(parr[i]*len(solX))+1], solZ[math.floor(parr[i]*len(solX))+1]], fig, ax, arrow_width=arrWidth, arrow_size=arrSize, arrow_color='r', zOrder=zd)
         dirs = dirs + arrow_dyn3([solX[math.floor(parr[-1]*len(solX))], solY[math.floor(parr[-1]*len(solX))], solZ[math.floor(parr[-1]*len(solX))]], [solX[math.floor(parr[-1]*len(solX))+1], solY[math.floor(parr[-1]*len(solX))+1], solZ[math.floor(parr[-1]*len(solX))+1]], fig, ax, arrow_width=arrWidth, arrow_size=arrSize, arrow_color='k', zOrder=zd)
-
 #            dirsRev = dirsRev + arrow_dyn3([solXrev[math.floor(parr[i]*len(solXrev))+1], solYrev[math.floor(parr[i]*len(solXrev))+1], 0], [solXrev[math.floor(parr[i]*len(solXrev))], solYrev[math.floor(parr[i]*len(solXrev))], 0], fig, ax, arrow_width=arrWidth, arrow_size=arrSize, arrow_color='g', zOrder=zd)
 #        return (psol + psolRev + dirs + dirsRev)
         #return(psol+psolRev+dirs)
@@ -359,13 +349,13 @@ def equilibria(payMtx, ax, colSnk, colSdl, colSce, ptSize, zd):
     ax.scatter(sourcexs, sourceys, s=ptSize, color=colSce, marker='o', edgecolors='black', alpha=1, zorder=zd)
     ax.scatter(saddlexs, saddleys, s=ptSize, color=colSdl, marker='o', edgecolors='black', alpha=1, zorder=zd)
     ax.scatter(centrexs, centreys, s=ptSize, color='orange', marker='*', edgecolors='black', alpha=1, zorder=zd)
-    ax.scatter(undetxs, undetys, s=ptSize, color='red', marker='x', edgecolors='black', alpha=1, zorder=zd)
+    ax.scatter(undetxs, undetys, s=ptSize, color='red', marker='o', edgecolors='black', alpha=1, zorder=zd)
     if payMtx[0].shape == (4,):
         ax.scatter(sinkxs, sinkys, sinkzs, s=ptSize, color=colSnk, marker='o', edgecolors='black', alpha=1, zorder=zd)
         ax.scatter(sourcexs, sourceys, sourcezs, s=ptSize, color=colSce, marker='o', edgecolors='black', alpha=1, zorder=zd)
         ax.scatter(saddlexs, saddleys, saddlezs, s=ptSize, color=colSdl, marker='o', edgecolors='black', alpha=1, zorder=zd)
         ax.scatter(centrexs, centreys, centrezs, s=ptSize, color='orange', marker='*', edgecolors='black', alpha=1, zorder=zd)
-        ax.scatter(undetxs, undetys, undetzs, s=ptSize, color='red', marker='x', edgecolors='black', alpha=1, zorder=zd)
+        ax.scatter(undetxs, undetys, undetzs, s=ptSize, color='red', marker='o', edgecolors='black', alpha=1, zorder=zd)
 #    return [pSink] + [pSource] + [pSaddle] + [pUndet]
     return [source] + [saddle] + [sink] + [centre] + [undet]
         
